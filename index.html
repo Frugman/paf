@@ -3,44 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annuaire de la Communauté</title>
+    <title>Le Réseau - Carte des Membres</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     
-    <style>
-        /* Ajustements pour la hauteur pleine page */
-        body, html { height: 100%; margin: 0; }
-        .map-container { height: 100%; width: 100%; }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 text-gray-800 h-screen overflow-hidden flex flex-col">
+<body class="bg-gray-50 font-sans h-screen flex flex-col overflow-hidden">
 
-    <header class="bg-white border-b border-gray-200 p-4 shadow-sm z-10">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-indigo-600">🚀 La Communauté</h1>
-            <span class="text-sm text-gray-500" id="member-count">Chargement...</span>
+    <nav class="bg-white shadow-sm z-20 relative flex-shrink-0">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🌍</span>
+                <h1 class="text-xl font-bold text-gray-800">Le Réseau <span class="text-indigo-600">Connecté</span></h1>
+            </div>
+            <div id="member-count" class="bg-indigo-100 text-indigo-700 text-sm font-bold px-3 py-1 rounded-full">
+                Chargement...
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+    <div class="flex-1 flex flex-col md:flex-row relative overflow-hidden">
         
-        <div class="w-full lg:w-3/5 h-full overflow-y-auto p-4 bg-gray-50" id="directory-panel">
-            <div id="members-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="w-full md:w-5/12 lg:w-4/12 overflow-y-auto p-4 bg-gray-50 h-full border-r border-gray-200">
+            <div id="members-grid" class="grid grid-cols-1 gap-4">
                 </div>
         </div>
 
-        <div class="w-full lg:w-2/5 h-64 lg:h-auto border-t lg:border-t-0 lg:border-l border-gray-200 relative z-0">
-            <div id="map" class="map-container"></div>
+        <div class="w-full md:w-7/12 lg:w-8/12 h-64 md:h-full relative z-0">
+            <div id="map" class="w-full h-full bg-gray-200"></div>
         </div>
 
-    </main>
+    </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
-    <script src="data.js"></script>
-    <script src="script.js"></script>
     <div id="profile-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         
         <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
@@ -49,7 +46,7 @@
             <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border-t-4 border-indigo-500">
                 
                 <div class="absolute right-0 top-0 pr-4 pt-4 z-10">
-                    <button type="button" onclick="closeModal()" class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <button type="button" onclick="closeModal()" class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none transition-colors">
                         <span class="sr-only">Fermer</span>
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -69,6 +66,10 @@
             document.getElementById('profile-modal').classList.add('hidden');
         }
     </script>
-</body>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script type="module" src="script.js"></script>
+
+</body>
 </html>
