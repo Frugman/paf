@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // MÉLANGE
+    // MÉLANGER
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -155,3 +155,4 @@ function openModal(member) {
 
     modal.classList.remove('hidden');
 }
+
