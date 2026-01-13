@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // MÉLANGER
+    // MÉLANGE
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -106,7 +106,6 @@ function openModal(member) {
         tagsHtml += '</div>';
     }
 
-    // NOUVEAU : Affichage des sujets d'intérêt
     let sujetsHtml = '';
     if (member.sujets_interet && member.sujets_interet.length > 0) {
          sujetsHtml = '<div class="mt-4"><h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">Sujets d\'intérêt</h3><div class="flex flex-wrap gap-2">';
@@ -128,9 +127,14 @@ function openModal(member) {
                 
                 ${member.linkedin ? `<a href="${member.linkedin}" target="_blank" class="w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors shadow-sm mb-3"><i class="fab fa-linkedin mr-2"></i> LinkedIn</a>` : ''}
                 
-                <button id="btn-modifier-fiche" class="w-full text-center bg-gray-100 text-gray-600 font-bold py-2 px-4 rounded hover:bg-gray-200 hover:text-indigo-600 transition-colors text-xs flex items-center justify-center gap-2">
-                    <i class="fas fa-pen"></i> Modifier ma fiche
-                </button>
+                <div class="w-full flex gap-2">
+                    <button id="btn-modifier-fiche" class="flex-1 text-center bg-gray-100 text-gray-600 font-bold py-2 px-4 rounded hover:bg-gray-200 hover:text-indigo-600 transition-colors text-xs flex items-center justify-center gap-2">
+                        <i class="fas fa-pen"></i> Modifier
+                    </button>
+                    <button id="btn-supprimer-fiche" class="flex-1 text-center bg-red-50 text-red-600 font-bold py-2 px-4 rounded hover:bg-red-100 transition-colors text-xs flex items-center justify-center gap-2 border border-red-100">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
             </div>
 
             <div class="md:w-2/3 md:border-l md:border-gray-100 md:pl-8 pt-2">
@@ -147,12 +151,50 @@ function openModal(member) {
         </div>
     `;
 
-    // C'est ICI que la magie opère : on attache le clic en JavaScript pur pour éviter les bugs
+    // BOUTON MODIFIER
     document.getElementById('btn-modifier-fiche').onclick = function() {
         localStorage.setItem('memberToEdit', JSON.stringify(member));
         window.location.href = 'inscription.html';
     };
 
+    // BOUTON SUPPRIMER (Nouveau !)
+    document.getElementById('btn-supprimer-fiche').onclick = async function() {
+        if(!confirm(`Êtes-vous SÛRE de vouloir supprimer définitivement ${member.prenom} ${member.nom} ?\n\nCette action est irréversible.`)) return;
+        
+        const code = prompt("🔒 Sécurité : Entrez le code administrateur pour confirmer la suppression (C'est 1234 par défaut) :");
+        if (!code) return;
+
+        // On change le bouton pour montrer que ça travaille
+        const btn = document.getElementById('btn-supprimer-fiche');
+        btn.innerText = "Suppression...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/api/delete-member', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    memberId: member.id, 
+                    fileName: `${member.id}.js`,
+                    secret: code
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("✅ Membre supprimé avec succès.\n\nL'annuaire va se mettre à jour dans 1 minute.");
+                closeModal();
+                location.reload(); // On recharge la page pour voir les changements (même si ça prendra 1min serveur)
+            } else {
+                alert("❌ Erreur : " + result.message);
+                btn.innerText = "Réessayer";
+                btn.disabled = false;
+            }
+        } catch (e) {
+            alert("Erreur technique : " + e.message);
+        }
+    };
+
     modal.classList.remove('hidden');
 }
-
