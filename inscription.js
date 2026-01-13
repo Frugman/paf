@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- PARTIE 1 : GESTION DU MODE "MODIFIER" ---
-    // (Cette partie reste identique pour pré-remplir le formulaire)
+    // --- GESTION DU MODE MODIFIER (Pas de changement) ---
     const memberToEditData = localStorage.getItem('memberToEdit');
     if (memberToEditData) {
         try {
@@ -27,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('sujets_interet').value = member.sujets_interet.join(', ');
             }
             
-            // Jauges
             const stats = member.stats || {};
             const setSlider = (id, val) => { 
                 document.getElementById(id).value = val || 3;
@@ -41,38 +39,32 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('h1').innerText = "Modifier : " + (member.prenom || 'Membre');
             const btn = document.querySelector('button[type="submit"]');
             btn.innerText = "Mettre à jour ma fiche";
-            
         } catch (e) { console.error("Erreur chargement profil", e); }
         localStorage.removeItem('memberToEdit');
     }
 
-    // Fonctions utilitaires pour les sliders
     window.updateSliderVal = function(id, val) {
         document.getElementById('val_' + id).innerText = val + '/5';
     }
 
-
-    // --- PARTIE 2 : ENVOI DU FORMULAIRE ---
+    // --- ENVOI DU FORMULAIRE (Le cœur du système) ---
     const form = document.getElementById('inscriptionForm');
     if(!form) return;
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // On change le bouton pour montrer que ça charge
         const btn = form.querySelector('button[type="submit"]');
         const originalText = btn.innerText;
-        btn.innerText = "⏳ Enregistrement en cours...";
+        btn.innerText = "⏳ Construction de l'annuaire...";
         btn.disabled = true;
         btn.classList.add('opacity-50', 'cursor-not-allowed');
 
-        // Récupération des valeurs
         const getVal = (id) => document.getElementById(id).value.trim();
         const prenom = getVal('prenom');
         const nom = getVal('nom');
         let photo = getVal('photo');
         
-        // Avatar par défaut
         if (!photo) photo = "https://ui-avatars.com/api/?name=" + prenom + "+" + nom + "&background=random&color=fff&size=256";
 
         const makeArray = (id) => getVal(id).split(',').map(s => s.trim()).filter(s => s.length > 0);
@@ -84,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             orga: parseInt(document.getElementById('orga').value) || 3
         };
 
-        // Création de l'ID unique et du contenu du fichier
+        // ID unique (ex: hortensechevalier)
         const idGenerated = (prenom + nom).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
         const fileName = `${idGenerated}.js`;
         
@@ -107,17 +99,21 @@ document.addEventListener('DOMContentLoaded', () => {
 };`;
 
         try {
-            // APPEL À L'API VERCEL (C'est ici que la magie opère)
+            // ON ENVOIE TOUT AU CERVEAU : le nom du fichier, le contenu, ET le nom de la variable JS
             const response = await fetch('/api/save-member', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fileName, fileContent })
+                body: JSON.stringify({ 
+                    fileName, 
+                    fileContent,
+                    memberId: idGenerated // <--- C'est ça qui manquait pour automatiser l'index !
+                })
             });
 
             const result = await response.json();
 
             if (response.ok) {
-                alert("✅ Succès ! Votre fiche a été créée.\n\nLe site va se mettre à jour automatiquement dans 1 à 2 minutes.\n(Pensez à ajouter manuellement l'import dans index.js si ce n'est pas encore automatisé).");
+                alert("✅ MAGIQUE ! Votre fiche est créée et ajoutée à l'annuaire.\n\nLe site va se mettre à jour tout seul dans 1 à 2 minutes.");
                 window.location.href = 'index.html';
             } else {
                 throw new Error(result.message || "Erreur inconnue");
@@ -125,20 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error(error);
-            alert("❌ Oups ! Une erreur est survenue : " + error.message);
-            // En cas d'erreur, on affiche quand même le code pour pas perdre les données
-            document.getElementById('jsonOutput').textContent = fileContent;
-            document.getElementById('resultat').classList.remove('hidden');
+            alert("❌ Erreur : " + error.message);
         } finally {
-            // On remet le bouton comme avant
             btn.innerText = originalText;
             btn.disabled = false;
             btn.classList.remove('opacity-50', 'cursor-not-allowed');
         }
     });
 });
-
-// Pour copier le code manuellement si besoin
-function copierCode() {
-    navigator.clipboard.writeText(document.getElementById('jsonOutput').textContent).then(() => alert("Copié !"));
-}
