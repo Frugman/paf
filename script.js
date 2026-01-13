@@ -1,11 +1,16 @@
+// 1. IMPORT IMPORTANT : On va chercher la liste dans le dossier membres
+import { lotsOfMembers } from './membres/index.js';
+
 document.addEventListener('DOMContentLoaded', () => {
 
+    // 2. Initialisation de la carte
     const map = L.map('map').setView([46.603354, 1.888334], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    // 3. Fonction de mélange
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -20,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('members-grid');
     const markers = [];
 
-    // --- BOUTON "NOUS REJOINDRE" (Reste inchangé) ---
+    // --- BOUTON "NOUS REJOINDRE" ---
     const addCard = document.createElement('a');
     addCard.href = "inscription.html";
     addCard.className = "group block bg-gray-50 p-6 rounded-lg border-2 border-dashed border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center cursor-pointer min-h-[180px]";
@@ -137,7 +142,12 @@ function openModal(member) {
 
     // INJECTION DU CONTENU COMPLET
     content.innerHTML = `
-        <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex flex-col md:flex-row gap-6 relative">
+            
+            <button onclick='editMember(${JSON.stringify(member)})' class="absolute top-0 right-0 md:top-0 md:right-0 bg-gray-100 hover:bg-indigo-100 text-gray-500 hover:text-indigo-600 text-xs font-bold py-1 px-3 rounded flex items-center gap-1 transition-colors z-10">
+                <i class="fas fa-pen"></i> Modifier
+            </button>
+
             <div class="flex flex-col items-center md:items-start md:w-1/3">
                 <img src="${member.photo}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 shadow-lg mb-4">
                 
@@ -158,7 +168,7 @@ function openModal(member) {
                     </a>` : ''}
             </div>
 
-            <div class="md:w-2/3 md:border-l md:border-gray-100 md:pl-6">
+            <div class="md:w-2/3 md:border-l md:border-gray-100 md:pl-6 pt-8 md:pt-0">
                 ${member.bio ? `
                     <div class="bg-indigo-50/50 p-4 rounded-lg border-l-4 border-indigo-300 italic text-gray-700 mb-6">
                         "${member.bio}"
@@ -177,3 +187,12 @@ function openModal(member) {
     // On affiche la modale
     modal.classList.remove('hidden');
 }
+
+// --- FONCTION POUR EDITER (Redirection) ---
+// On l'attache à 'window' pour être sûr que le HTML puisse l'appeler via onclick=""
+window.editMember = function(member) {
+    // On sauvegarde les données du membre dans la mémoire du navigateur
+    localStorage.setItem('memberToEdit', JSON.stringify(member));
+    // On redirige vers le formulaire
+    window.location.href = 'inscription.html';
+};
