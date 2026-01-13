@@ -1,4 +1,4 @@
-// 1. IMPORT IMPORTANT : On va chercher la liste dans le dossier membres
+// 1. IMPORT
 import { lotsOfMembers } from './membres/index.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // 3. Fonction de mélange
+    // 3. Mélange
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GÉNÉRATION DES CARTES "MINI" ---
     shuffledMembers.forEach(member => {
         
-        // Données simples pour la carte
         const lieu = member.codePostal ? `${member.codePostal} ${member.ville}` : member.ville;
         
         const roleHtml = member.role_supp 
@@ -53,10 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
             : '';
 
         const card = document.createElement('div');
-        // "cursor-pointer" indique que c'est cliquable
         card.className = "bg-white p-5 rounded-xl shadow hover:shadow-lg transition-all border border-gray-100 flex flex-col items-start cursor-pointer group hover:border-indigo-300";
         
-        // On attache l'événement CLIC pour ouvrir la pop-up
         card.onclick = () => openModal(member);
 
         card.innerHTML = `
@@ -74,13 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         gridContainer.appendChild(card);
 
-        // --- MAP (Reste inchangée) ---
+        // Map Marker
         if (member.lat && member.lng) {
             const marker = L.marker([member.lat, member.lng])
                 .addTo(map)
                 .bindPopup(`<b>${member.prenom} ${member.nom}</b><br>${member.poste}`);
             
-            // Si on clique sur le point de la carte, ça ouvre aussi la pop-up !
             marker.on('click', () => {
                 openModal(member);
             });
@@ -96,13 +92,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// --- FONCTION POUR OUVRIR LA POP-UP (MODALE) ---
+// --- FONCTION POUR OUVRIR LA POP-UP ---
 function openModal(member) {
     const modal = document.getElementById('profile-modal');
     const content = document.getElementById('modal-content');
     const lieu = member.codePostal ? `${member.codePostal} ${member.ville}` : member.ville;
 
-    // Préparation HTML des Jauges
+    // PROTECTION DES DONNÉES POUR LE BOUTON EDIT
+    // On remplace les apostrophes (') par leur code HTML (&apos;) sinon ça casse le bouton
+    const memberDataSafe = JSON.stringify(member).replace(/'/g, "&apos;");
+
+    // Jauges
     let statsHtml = '';
     if (member.stats) {
         statsHtml = '<div class="grid grid-cols-2 gap-x-6 gap-y-3 mt-6 bg-gray-50 p-4 rounded-lg">';
@@ -125,7 +125,7 @@ function openModal(member) {
         statsHtml += '</div>';
     }
 
-    // Préparation HTML des Tags
+    // Tags
     let tagsHtml = '';
     if (member.competences && member.competences.length > 0) {
         tagsHtml = '<div class="flex flex-wrap gap-2 mt-4">';
@@ -135,20 +135,16 @@ function openModal(member) {
         tagsHtml += '</div>';
     }
 
-    // Préparation HTML du Rôle Supp
+    // Rôle
     const roleHtml = member.role_supp 
         ? `<span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3">${member.role_supp}</span>` 
         : '';
 
-    // INJECTION DU CONTENU COMPLET
+    // CONSTRUCTION DU HTML
     content.innerHTML = `
-        <div class="flex flex-col md:flex-row gap-6 relative">
+        <div class="flex flex-col md:flex-row gap-8 relative">
             
-            <button onclick='editMember(${JSON.stringify(member)})' class="absolute top-0 right-0 md:top-0 md:right-0 bg-gray-100 hover:bg-indigo-100 text-gray-500 hover:text-indigo-600 text-xs font-bold py-1 px-3 rounded flex items-center gap-1 transition-colors z-10">
-                <i class="fas fa-pen"></i> Modifier
-            </button>
-
-            <div class="flex flex-col items-center md:items-start md:w-1/3">
+            <div class="flex flex-col items-center md:items-start md:w-1/3 flex-shrink-0">
                 <img src="${member.photo}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 shadow-lg mb-4">
                 
                 ${member.nom_code ? `<p class="font-mono text-indigo-500 font-bold uppercase text-sm tracking-widest mb-1">CODE : ${member.nom_code}</p>` : ''}
@@ -158,41 +154,43 @@ function openModal(member) {
                 
                 ${roleHtml}
                 
-                <p class="text-gray-500 text-sm flex items-center gap-1 mt-1">
+                <p class="text-gray-500 text-sm flex items-center gap-1 mt-1 mb-6">
                     <i class="fas fa-map-marker-alt"></i> ${lieu}
                 </p>
 
                 ${member.linkedin ? `
-                    <a href="${member.linkedin}" target="_blank" class="mt-6 w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors">
-                        LinkedIn
+                    <a href="${member.linkedin}" target="_blank" class="w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors shadow-sm mb-3">
+                        <i class="fab fa-linkedin mr-2"></i> LinkedIn
                     </a>` : ''}
+
+                <button onclick='window.editMember(${memberDataSafe})' class="w-full text-center bg-gray-100 text-gray-600 font-bold py-2 px-4 rounded hover:bg-gray-200 hover:text-indigo-600 transition-colors text-xs flex items-center justify-center gap-2">
+                    <i class="fas fa-pen"></i> Modifier ma fiche
+                </button>
             </div>
 
-            <div class="md:w-2/3 md:border-l md:border-gray-100 md:pl-6 pt-8 md:pt-0">
+            <div class="md:w-2/3 md:border-l md:border-gray-100 md:pl-8 pt-2">
+                
                 ${member.bio ? `
-                    <div class="bg-indigo-50/50 p-4 rounded-lg border-l-4 border-indigo-300 italic text-gray-700 mb-6">
-                        "${member.bio}"
+                    <div class="bg-indigo-50/50 p-6 rounded-lg border-l-4 border-indigo-300 italic text-gray-700 mb-6 mt-4 md:mt-0 relative">
+                        <i class="fas fa-quote-left text-indigo-200 absolute top-2 left-2 text-xl"></i>
+                        <p class="relative z-10">"${member.bio}"</p>
                     </div>
                 ` : ''}
 
-                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">Compétences</h3>
+                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2 mt-6">Compétences</h3>
                 ${tagsHtml || '<p class="text-gray-400 text-sm italic">Aucune compétence listée</p>'}
 
-                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mt-6 mb-2">Statistiques Agent</h3>
+                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mt-8 mb-2">Statistiques Agent</h3>
                 ${statsHtml}
             </div>
         </div>
     `;
 
-    // On affiche la modale
     modal.classList.remove('hidden');
 }
 
-// --- FONCTION POUR EDITER (Redirection) ---
-// On l'attache à 'window' pour être sûr que le HTML puisse l'appeler via onclick=""
+// FONCTION GLOBALE POUR EDITER
 window.editMember = function(member) {
-    // On sauvegarde les données du membre dans la mémoire du navigateur
     localStorage.setItem('memberToEdit', JSON.stringify(member));
-    // On redirige vers le formulaire
     window.location.href = 'inscription.html';
 };
