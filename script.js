@@ -44,10 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.onclick = () => openModal(member);
 
         card.innerHTML = `
-            <div class="relative">
-                <img src="${member.photo}" alt="${member.prenom}" class="w-20 h-20 object-cover border-2 border-black shadow-sm group-hover:grayscale transition-all flex-shrink-0 bg-gray-200">
-                <div class="absolute -bottom-1 -right-1 bg-jaune text-black text-xs font-bold px-1 border border-black">♀</div>
-            </div>
+            <img src="${member.photo}" alt="${member.prenom}" class="w-20 h-20 object-cover border-2 border-black shadow-sm group-hover:grayscale transition-all flex-shrink-0 bg-gray-200">
             
             <div class="flex-1 min-w-0 flex flex-col items-start justify-center">
                 <h3 class="font-black text-black text-lg leading-tight uppercase truncate w-full">${member.prenom} ${member.nom}</h3>
@@ -202,5 +199,6 @@ function openModal(member) {
 
     modal.classList.remove('hidden');
 }
+
 
 
