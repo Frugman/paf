@@ -26,7 +26,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const gridContainer = document.getElementById('members-grid');
     const markers = []; // Pour stocker les marqueurs de la carte
 
-    // 4. Génération des cartes et des marqueurs
+    // --- AJOUT : Le bouton "Case vide avec +" en début de grille ---
+    const addCard = document.createElement('a'); // C'est un lien cliquable
+    addCard.href = "inscription.html"; // Il mènera vers votre futur formulaire
+    // Styles Tailwind pour faire une jolie boîte en pointillés
+    addCard.className = "group block bg-gray-50 p-4 rounded-lg border-2 border-dashed border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center cursor-pointer min-h-[100px]";
+    
+    addCard.innerHTML = `
+        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-indigo-500 transition-colors">
+            <span class="text-2xl text-indigo-600 group-hover:text-white font-bold pb-1">+</span>
+        </div>
+        <span class="text-indigo-600 font-medium text-sm">Nous rejoindre</span>
+    `;
+    
+    // On l'ajoute en PREMIER dans la grille
+    gridContainer.appendChild(addCard);
+    // -------------------------------------------------------------
+
+    // 4. Génération des cartes et des marqueurs (Les membres arrivent après)
     shuffledMembers.forEach(member => {
         
         // Préparation de l'affichage du lieu (avec ou sans Code Postal)
@@ -74,3 +91,4 @@ document.addEventListener('DOMContentLoaded', () => {
          map.fitBounds(group.getBounds(), {maxZoom: 12});
     }
 });
+
