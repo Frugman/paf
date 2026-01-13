@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // BOUTON "NOUS REJOINDRE"
     const addCard = document.createElement('a');
     addCard.href = "inscription.html";
-    addCard.className = "group block bg-gray-50 p-6 rounded-lg border-2 border-dashed border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center cursor-pointer min-h-[180px]";
+    addCard.className = "group block bg-gray-50 p-6 rounded-lg border-2 border-dashed border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center cursor-pointer min-h-[160px]";
     addCard.innerHTML = `
         <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-indigo-500 transition-colors">
             <span class="text-2xl text-indigo-600 group-hover:text-white font-bold pb-1">+</span>
@@ -34,33 +34,34 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     gridContainer.appendChild(addCard);
 
-    // GÉNÉRATION DES MINI-FICHES
+    // GÉNÉRATION DES MINI-FICHES (NOUVELLE PRÉSENTATION)
     shuffledMembers.forEach(member => {
         const lieu = member.codePostal ? `${member.codePostal} ${member.ville}` : member.ville;
-        const roleHtml = member.role_supp ? `<span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide mt-2">${member.role_supp}</span>` : '';
-        const codeNameHtml = member.nom_code ? `<p class="text-xs font-mono text-indigo-400 font-bold uppercase tracking-widest mb-1">CODE : ${member.nom_code}</p>` : '';
-
+        
+        // On construit la mini fiche
         const card = document.createElement('div');
-        card.className = "bg-white p-5 rounded-xl shadow hover:shadow-lg transition-all border border-gray-100 flex flex-col items-start cursor-pointer group hover:border-indigo-300";
+        card.className = "bg-white p-5 rounded-xl shadow hover:shadow-lg transition-all border border-gray-100 flex items-start space-x-4 cursor-pointer group hover:border-indigo-300";
         
         card.onclick = () => openModal(member);
 
+        // Layout : Photo à gauche, Tout le reste dans la colonne de droite
         card.innerHTML = `
-            <div class="flex items-center space-x-4 w-full">
-                <img src="${member.photo}" alt="${member.prenom}" class="w-16 h-16 rounded-full object-cover border-2 border-indigo-100 shadow-sm group-hover:border-indigo-400 transition-colors">
-                <div class="flex-1 min-w-0">
-                    ${codeNameHtml}
-                    <h3 class="font-bold text-gray-900 text-lg truncate">${member.prenom} ${member.nom}</h3>
-                    <p class="text-indigo-600 text-sm font-medium truncate">${member.poste}</p>
-                    <p class="text-gray-400 text-xs mt-1">📍 ${lieu}</p>
-                </div>
+            <img src="${member.photo}" alt="${member.prenom}" class="w-20 h-20 rounded-full object-cover border-2 border-indigo-100 shadow-sm group-hover:border-indigo-400 transition-colors flex-shrink-0">
+            
+            <div class="flex-1 min-w-0 flex flex-col items-start justify-center">
+                <h3 class="font-bold text-gray-900 text-lg leading-tight">${member.prenom} ${member.nom}</h3>
+                
+                ${member.nom_code ? `<p class="font-mono text-indigo-500 text-xs font-bold uppercase tracking-widest mt-1">${member.nom_code}</p>` : ''}
+                
+                <p class="text-gray-400 text-xs mt-2 flex items-center gap-1">📍 ${lieu}</p>
+
+                ${member.role_supp ? `<span class="inline-block bg-pink-100 text-pink-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide mt-2">${member.role_supp}</span>` : ''}
             </div>
-            ${roleHtml}
         `;
         gridContainer.appendChild(card);
 
         if (member.lat && member.lng) {
-            const marker = L.marker([member.lat, member.lng]).addTo(map).bindPopup(`<b>${member.prenom} ${member.nom}</b><br>${member.poste}`);
+            const marker = L.marker([member.lat, member.lng]).addTo(map).bindPopup(`<b>${member.prenom} ${member.nom}</b><br>${member.nom_code}`);
             marker.on('click', () => openModal(member));
             markers.push(marker);
         }
@@ -108,7 +109,9 @@ function openModal(member) {
 
     let sujetsHtml = '';
     if (member.sujets_interet && member.sujets_interet.length > 0) {
-         sujetsHtml = '<div class="mt-4"><h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">Sujets d\'intérêt</h3><div class="flex flex-wrap gap-2">';
+         // Changement de titre : MES COMBATS
+         sujetsHtml = '<div class="mt-4"><h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">Mes Combats</h3><div class="flex flex-wrap gap-2">';
+         // On garde le vert pour les tags, ou on peut changer si tu veux
          member.sujets_interet.forEach(sujet => sujetsHtml += `<span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-100">${sujet}</span>`);
          sujetsHtml += '</div></div>';
     }
@@ -119,9 +122,12 @@ function openModal(member) {
         <div class="flex flex-col md:flex-row gap-8 relative">
             <div class="flex flex-col items-center md:items-start md:w-1/3 flex-shrink-0">
                 <img src="${member.photo}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 shadow-lg mb-4">
-                ${member.nom_code ? `<p class="font-mono text-indigo-500 font-bold uppercase text-sm tracking-widest mb-1">CODE : ${member.nom_code}</p>` : ''}
+                
                 <h2 class="text-2xl font-bold text-gray-900 text-center md:text-left leading-tight">${member.prenom} ${member.nom}</h2>
-                <p class="text-indigo-600 font-medium text-lg text-center md:text-left mb-2">${member.poste}</p>
+                
+                ${member.nom_code ? `<p class="font-mono text-indigo-500 font-bold uppercase text-sm tracking-widest mb-1 mt-1">CODE : ${member.nom_code}</p>` : ''}
+                
+                <p class="text-indigo-600 font-medium text-lg text-center md:text-left mb-2 mt-2">${member.poste}</p>
                 ${roleHtml}
                 <p class="text-gray-500 text-sm flex items-center gap-1 mt-1 mb-6"><i class="fas fa-map-marker-alt"></i> ${lieu}</p>
                 
@@ -145,7 +151,7 @@ function openModal(member) {
                 
                 ${sujetsHtml}
 
-                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mt-8 mb-2">Statistiques Agent</h3>
+                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mt-8 mb-2">Super Pouvoirs</h3>
                 ${statsHtml}
             </div>
         </div>
@@ -157,14 +163,13 @@ function openModal(member) {
         window.location.href = 'inscription.html';
     };
 
-    // BOUTON SUPPRIMER (Nouveau !)
+    // BOUTON SUPPRIMER
     document.getElementById('btn-supprimer-fiche').onclick = async function() {
         if(!confirm(`Êtes-vous SÛRE de vouloir supprimer définitivement ${member.prenom} ${member.nom} ?\n\nCette action est irréversible.`)) return;
         
         const code = prompt("🔒 Sécurité : Entrez le code administrateur pour confirmer la suppression (C'est 1234 par défaut) :");
         if (!code) return;
 
-        // On change le bouton pour montrer que ça travaille
         const btn = document.getElementById('btn-supprimer-fiche');
         btn.innerText = "Suppression...";
         btn.disabled = true;
@@ -185,7 +190,7 @@ function openModal(member) {
             if (response.ok) {
                 alert("✅ Membre supprimé avec succès.\n\nL'annuaire va se mettre à jour dans 1 minute.");
                 closeModal();
-                location.reload(); // On recharge la page pour voir les changements (même si ça prendra 1min serveur)
+                location.reload(); 
             } else {
                 alert("❌ Erreur : " + result.message);
                 btn.innerText = "Réessayer";
