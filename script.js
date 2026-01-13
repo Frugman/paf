@@ -1,16 +1,14 @@
-// 1. IMPORT
 import { lotsOfMembers } from './membres/index.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 2. Initialisation de la carte
+    // CARTE
     const map = L.map('map').setView([46.603354, 1.888334], 6);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // 3. Mélange
+    // MÉLANGE
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -18,14 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return array;
     }
-
     const shuffledMembers = shuffleArray([...lotsOfMembers]);
     document.getElementById('member-count').innerText = `${shuffledMembers.length} membre(s) actif(s)`;
 
     const gridContainer = document.getElementById('members-grid');
     const markers = [];
 
-    // --- BOUTON "NOUS REJOINDRE" ---
+    // BOUTON "NOUS REJOINDRE"
     const addCard = document.createElement('a');
     addCard.href = "inscription.html";
     addCard.className = "group block bg-gray-50 p-6 rounded-lg border-2 border-dashed border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center cursor-pointer min-h-[180px]";
@@ -37,19 +34,11 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     gridContainer.appendChild(addCard);
 
-
-    // --- GÉNÉRATION DES CARTES "MINI" ---
+    // GÉNÉRATION DES MINI-FICHES
     shuffledMembers.forEach(member => {
-        
         const lieu = member.codePostal ? `${member.codePostal} ${member.ville}` : member.ville;
-        
-        const roleHtml = member.role_supp 
-            ? `<span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide mt-2">${member.role_supp}</span>` 
-            : '';
-
-        const codeNameHtml = member.nom_code
-            ? `<p class="text-xs font-mono text-indigo-400 font-bold uppercase tracking-widest mb-1">CODE : ${member.nom_code}</p>`
-            : '';
+        const roleHtml = member.role_supp ? `<span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide mt-2">${member.role_supp}</span>` : '';
+        const codeNameHtml = member.nom_code ? `<p class="text-xs font-mono text-indigo-400 font-bold uppercase tracking-widest mb-1">CODE : ${member.nom_code}</p>` : '';
 
         const card = document.createElement('div');
         card.className = "bg-white p-5 rounded-xl shadow hover:shadow-lg transition-all border border-gray-100 flex flex-col items-start cursor-pointer group hover:border-indigo-300";
@@ -68,19 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             ${roleHtml}
         `;
-        
         gridContainer.appendChild(card);
 
-        // Map Marker
         if (member.lat && member.lng) {
-            const marker = L.marker([member.lat, member.lng])
-                .addTo(map)
-                .bindPopup(`<b>${member.prenom} ${member.nom}</b><br>${member.poste}`);
-            
-            marker.on('click', () => {
-                openModal(member);
-            });
-            
+            const marker = L.marker([member.lat, member.lng]).addTo(map).bindPopup(`<b>${member.prenom} ${member.nom}</b><br>${member.poste}`);
+            marker.on('click', () => openModal(member));
             markers.push(marker);
         }
     });
@@ -91,18 +72,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-
-// --- FONCTION POUR OUVRIR LA POP-UP ---
+// POP-UP / MODALE
 function openModal(member) {
     const modal = document.getElementById('profile-modal');
     const content = document.getElementById('modal-content');
     const lieu = member.codePostal ? `${member.codePostal} ${member.ville}` : member.ville;
 
-    // PROTECTION DES DONNÉES POUR LE BOUTON EDIT
-    // On remplace les apostrophes (') par leur code HTML (&apos;) sinon ça casse le bouton
-    const memberDataSafe = JSON.stringify(member).replace(/'/g, "&apos;");
-
-    // Jauges
     let statsHtml = '';
     if (member.stats) {
         statsHtml = '<div class="grid grid-cols-2 gap-x-6 gap-y-3 mt-6 bg-gray-50 p-4 rounded-lg">';
@@ -119,66 +94,52 @@ function openModal(member) {
                     <div class="w-full bg-gray-200 rounded-full h-2">
                         <div class="bg-indigo-600 h-2 rounded-full" style="width: ${percent}%"></div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
         statsHtml += '</div>';
     }
 
-    // Tags
     let tagsHtml = '';
     if (member.competences && member.competences.length > 0) {
         tagsHtml = '<div class="flex flex-wrap gap-2 mt-4">';
-        member.competences.forEach(tag => {
-            tagsHtml += `<span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">${tag}</span>`;
-        });
+        member.competences.forEach(tag => tagsHtml += `<span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">${tag}</span>`);
         tagsHtml += '</div>';
     }
 
-    // Rôle
-    const roleHtml = member.role_supp 
-        ? `<span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3">${member.role_supp}</span>` 
-        : '';
+    // NOUVEAU : Affichage des sujets d'intérêt
+    let sujetsHtml = '';
+    if (member.sujets_interet && member.sujets_interet.length > 0) {
+         sujetsHtml = '<div class="mt-4"><h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">Sujets d\'intérêt</h3><div class="flex flex-wrap gap-2">';
+         member.sujets_interet.forEach(sujet => sujetsHtml += `<span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-100">${sujet}</span>`);
+         sujetsHtml += '</div></div>';
+    }
 
-    // CONSTRUCTION DU HTML
+    const roleHtml = member.role_supp ? `<span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3">${member.role_supp}</span>` : '';
+
     content.innerHTML = `
         <div class="flex flex-col md:flex-row gap-8 relative">
-            
             <div class="flex flex-col items-center md:items-start md:w-1/3 flex-shrink-0">
                 <img src="${member.photo}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 shadow-lg mb-4">
-                
                 ${member.nom_code ? `<p class="font-mono text-indigo-500 font-bold uppercase text-sm tracking-widest mb-1">CODE : ${member.nom_code}</p>` : ''}
-                
                 <h2 class="text-2xl font-bold text-gray-900 text-center md:text-left leading-tight">${member.prenom} ${member.nom}</h2>
                 <p class="text-indigo-600 font-medium text-lg text-center md:text-left mb-2">${member.poste}</p>
-                
                 ${roleHtml}
+                <p class="text-gray-500 text-sm flex items-center gap-1 mt-1 mb-6"><i class="fas fa-map-marker-alt"></i> ${lieu}</p>
                 
-                <p class="text-gray-500 text-sm flex items-center gap-1 mt-1 mb-6">
-                    <i class="fas fa-map-marker-alt"></i> ${lieu}
-                </p>
-
-                ${member.linkedin ? `
-                    <a href="${member.linkedin}" target="_blank" class="w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors shadow-sm mb-3">
-                        <i class="fab fa-linkedin mr-2"></i> LinkedIn
-                    </a>` : ''}
-
-                <button onclick='window.editMember(${memberDataSafe})' class="w-full text-center bg-gray-100 text-gray-600 font-bold py-2 px-4 rounded hover:bg-gray-200 hover:text-indigo-600 transition-colors text-xs flex items-center justify-center gap-2">
+                ${member.linkedin ? `<a href="${member.linkedin}" target="_blank" class="w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors shadow-sm mb-3"><i class="fab fa-linkedin mr-2"></i> LinkedIn</a>` : ''}
+                
+                <button id="btn-modifier-fiche" class="w-full text-center bg-gray-100 text-gray-600 font-bold py-2 px-4 rounded hover:bg-gray-200 hover:text-indigo-600 transition-colors text-xs flex items-center justify-center gap-2">
                     <i class="fas fa-pen"></i> Modifier ma fiche
                 </button>
             </div>
 
             <div class="md:w-2/3 md:border-l md:border-gray-100 md:pl-8 pt-2">
+                ${member.bio ? `<div class="bg-indigo-50/50 p-6 rounded-lg border-l-4 border-indigo-300 italic text-gray-700 mb-6 mt-4 md:mt-0 relative"><i class="fas fa-quote-left text-indigo-200 absolute top-2 left-2 text-xl"></i><p class="relative z-10">"${member.bio}"</p></div>` : ''}
                 
-                ${member.bio ? `
-                    <div class="bg-indigo-50/50 p-6 rounded-lg border-l-4 border-indigo-300 italic text-gray-700 mb-6 mt-4 md:mt-0 relative">
-                        <i class="fas fa-quote-left text-indigo-200 absolute top-2 left-2 text-xl"></i>
-                        <p class="relative z-10">"${member.bio}"</p>
-                    </div>
-                ` : ''}
-
                 <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2 mt-6">Compétences</h3>
                 ${tagsHtml || '<p class="text-gray-400 text-sm italic">Aucune compétence listée</p>'}
+                
+                ${sujetsHtml}
 
                 <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mt-8 mb-2">Statistiques Agent</h3>
                 ${statsHtml}
@@ -186,11 +147,11 @@ function openModal(member) {
         </div>
     `;
 
+    // C'est ICI que la magie opère : on attache le clic en JavaScript pur pour éviter les bugs
+    document.getElementById('btn-modifier-fiche').onclick = function() {
+        localStorage.setItem('memberToEdit', JSON.stringify(member));
+        window.location.href = 'inscription.html';
+    };
+
     modal.classList.remove('hidden');
 }
-
-// FONCTION GLOBALE POUR EDITER
-window.editMember = function(member) {
-    localStorage.setItem('memberToEdit', JSON.stringify(member));
-    window.location.href = 'inscription.html';
-};
