@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // CARTE
     const map = L.map('map').setView([46.603354, 1.888334], 6);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     }).addTo(map);
 
     // MÉLANGE
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return array;
     }
     const shuffledMembers = shuffleArray([...lotsOfMembers]);
-    document.getElementById('member-count').innerText = `${shuffledMembers.length} membre(s) actif(s)`;
+    document.getElementById('member-count').innerText = `${shuffledMembers.length} AGENT(S)`;
 
     const gridContainer = document.getElementById('members-grid');
     const markers = [];
@@ -25,43 +25,44 @@ document.addEventListener('DOMContentLoaded', () => {
     // BOUTON "NOUS REJOINDRE"
     const addCard = document.createElement('a');
     addCard.href = "inscription.html";
-    addCard.className = "group block bg-gray-50 p-6 rounded-lg border-2 border-dashed border-indigo-300 hover:border-indigo-500 hover:bg-indigo-50 transition-all flex flex-col items-center justify-center cursor-pointer min-h-[160px]";
+    addCard.className = "group block bg-jaune p-6 border-4 border-black border-dashed hover:bg-black hover:border-jaune transition-all flex flex-col items-center justify-center cursor-pointer min-h-[160px]";
     addCard.innerHTML = `
-        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-indigo-500 transition-colors">
-            <span class="text-2xl text-indigo-600 group-hover:text-white font-bold pb-1">+</span>
+        <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-2 group-hover:bg-jaune transition-colors border-2 border-white">
+            <span class="text-3xl text-jaune group-hover:text-black font-black pb-1">+</span>
         </div>
-        <span class="text-indigo-600 font-bold text-sm">Nous rejoindre</span>
+        <span class="text-black group-hover:text-jaune font-black text-sm uppercase tracking-widest">Nous rejoindre</span>
     `;
     gridContainer.appendChild(addCard);
 
-    // GÉNÉRATION DES MINI-FICHES (NOUVELLE PRÉSENTATION)
+    // GÉNÉRATION DES MINI-FICHES
     shuffledMembers.forEach(member => {
-        const lieu = member.codePostal ? `${member.codePostal} ${member.ville}` : member.ville;
+        const lieu = member.ville; // Ville uniquement
         
-        // On construit la mini fiche
         const card = document.createElement('div');
-        card.className = "bg-white p-5 rounded-xl shadow hover:shadow-lg transition-all border border-gray-100 flex items-start space-x-4 cursor-pointer group hover:border-indigo-300";
+        card.className = "bg-white p-5 border-2 border-gray-200 hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(255,237,0,1)] transition-all flex items-start space-x-4 cursor-pointer group";
         
         card.onclick = () => openModal(member);
 
-        // Layout : Photo à gauche, Tout le reste dans la colonne de droite
         card.innerHTML = `
-            <img src="${member.photo}" alt="${member.prenom}" class="w-20 h-20 rounded-full object-cover border-2 border-indigo-100 shadow-sm group-hover:border-indigo-400 transition-colors flex-shrink-0">
+            <div class="relative">
+                <img src="${member.photo}" alt="${member.prenom}" class="w-20 h-20 object-cover border-2 border-black shadow-sm group-hover:grayscale transition-all flex-shrink-0 bg-gray-200">
+                <div class="absolute -bottom-1 -right-1 bg-jaune text-black text-xs font-bold px-1 border border-black">♀</div>
+            </div>
             
             <div class="flex-1 min-w-0 flex flex-col items-start justify-center">
-                <h3 class="font-bold text-gray-900 text-lg leading-tight">${member.prenom} ${member.nom}</h3>
+                <h3 class="font-black text-black text-lg leading-tight uppercase truncate w-full">${member.prenom} ${member.nom}</h3>
                 
-                ${member.nom_code ? `<p class="font-mono text-indigo-500 text-xs font-bold uppercase tracking-widest mt-1">${member.nom_code}</p>` : ''}
+                ${member.nom_code ? `<p class="font-mono text-gray-500 text-xs font-bold uppercase tracking-widest mt-1 bg-gray-100 px-1">CODE: ${member.nom_code}</p>` : ''}
                 
-                <p class="text-gray-400 text-xs mt-2 flex items-center gap-1">📍 ${lieu}</p>
+                <p class="text-black text-xs mt-2 flex items-center gap-1 font-bold"><i class="fas fa-map-marker-alt text-jaune text-stroke-black"></i> ${lieu}</p>
 
-                ${member.role_supp ? `<span class="inline-block bg-pink-100 text-pink-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide mt-2">${member.role_supp}</span>` : ''}
+                ${member.role_supp ? `<span class="inline-block bg-black text-jaune text-[10px] font-bold px-2 py-0.5 uppercase tracking-wide mt-2 border border-black transform -skew-x-6">${member.role_supp}</span>` : ''}
             </div>
         `;
         gridContainer.appendChild(card);
 
         if (member.lat && member.lng) {
-            const marker = L.marker([member.lat, member.lng]).addTo(map).bindPopup(`<b>${member.prenom} ${member.nom}</b><br>${member.nom_code}`);
+            const marker = L.marker([member.lat, member.lng]).addTo(map).bindPopup(`<b>${member.prenom} ${member.nom}</b><br>${member.nom_code || ''}`);
             marker.on('click', () => openModal(member));
             markers.push(marker);
         }
@@ -77,23 +78,23 @@ document.addEventListener('DOMContentLoaded', () => {
 function openModal(member) {
     const modal = document.getElementById('profile-modal');
     const content = document.getElementById('modal-content');
-    const lieu = member.codePostal ? `${member.codePostal} ${member.ville}` : member.ville;
+    const lieu = member.ville;
 
     let statsHtml = '';
     if (member.stats) {
-        statsHtml = '<div class="grid grid-cols-2 gap-x-6 gap-y-3 mt-6 bg-gray-50 p-4 rounded-lg">';
+        statsHtml = '<div class="grid grid-cols-2 gap-x-8 gap-y-4 mt-6 bg-gray-100 p-6 border-2 border-black">';
         const labels = { bagou: 'Bagou', redac: 'Rédac', terrain: 'Terrain', orga: 'Orga' };
         for (const [key, score] of Object.entries(member.stats)) {
             const percent = score * 20;
             const label = labels[key] || key;
             statsHtml += `
                 <div class="flex flex-col">
-                    <div class="flex justify-between text-xs text-gray-500 mb-1">
-                        <span class="uppercase font-bold tracking-wider">${label}</span>
-                        <span class="font-bold text-indigo-600">${score}/5</span>
+                    <div class="flex justify-between text-xs text-black mb-1 font-black uppercase tracking-widest">
+                        <span>${label}</span>
+                        <span>${score}/5</span>
                     </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-indigo-600 h-2 rounded-full" style="width: ${percent}%"></div>
+                    <div class="w-full bg-white border border-black h-3 p-0.5">
+                        <div class="bg-jaune h-full" style="width: ${percent}%"></div>
                     </div>
                 </div>`;
         }
@@ -103,55 +104,55 @@ function openModal(member) {
     let tagsHtml = '';
     if (member.competences && member.competences.length > 0) {
         tagsHtml = '<div class="flex flex-wrap gap-2 mt-4">';
-        member.competences.forEach(tag => tagsHtml += `<span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">${tag}</span>`);
+        member.competences.forEach(tag => tagsHtml += `<span class="bg-white text-black text-xs font-bold px-3 py-1 border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">${tag}</span>`);
         tagsHtml += '</div>';
     }
 
     let sujetsHtml = '';
     if (member.sujets_interet && member.sujets_interet.length > 0) {
-         // Changement de titre : MES COMBATS
-         sujetsHtml = '<div class="mt-4"><h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2">Mes Combats</h3><div class="flex flex-wrap gap-2">';
-         // On garde le vert pour les tags, ou on peut changer si tu veux
-         member.sujets_interet.forEach(sujet => sujetsHtml += `<span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-100">${sujet}</span>`);
+         sujetsHtml = '<div class="mt-6"><h3 class="font-black text-black uppercase text-sm tracking-widest mb-2 bg-jaune inline-block px-1 transform -rotate-1">Mes Combats</h3><div class="flex flex-wrap gap-2 mt-2">';
+         member.sujets_interet.forEach(sujet => sujetsHtml += `<span class="bg-black text-jaune text-xs font-bold px-3 py-1 border border-black">${sujet}</span>`);
          sujetsHtml += '</div></div>';
     }
 
-    const roleHtml = member.role_supp ? `<span class="inline-block bg-pink-100 text-pink-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-3">${member.role_supp}</span>` : '';
+    const roleHtml = member.role_supp ? `<span class="inline-block bg-black text-jaune text-xs font-bold px-3 py-1 uppercase tracking-wide mb-3 border border-black transform -skew-x-6">${member.role_supp}</span>` : '';
 
     content.innerHTML = `
         <div class="flex flex-col md:flex-row gap-8 relative">
-            <div class="flex flex-col items-center md:items-start md:w-1/3 flex-shrink-0">
-                <img src="${member.photo}" class="w-32 h-32 rounded-full object-cover border-4 border-indigo-100 shadow-lg mb-4">
+            <div class="flex flex-col items-center md:items-start md:w-1/3 flex-shrink-0 text-center md:text-left">
+                <img src="${member.photo}" class="w-40 h-40 object-cover border-4 border-black shadow-[4px_4px_0px_0px_rgba(255,237,0,1)] mb-5 bg-gray-200">
                 
-                <h2 class="text-2xl font-bold text-gray-900 text-center md:text-left leading-tight">${member.prenom} ${member.nom}</h2>
+                <h2 class="text-3xl font-black text-black leading-none uppercase">${member.prenom}<br>${member.nom}</h2>
                 
-                ${member.nom_code ? `<p class="font-mono text-indigo-500 font-bold uppercase text-sm tracking-widest mb-1 mt-1">CODE : ${member.nom_code}</p>` : ''}
+                ${member.nom_code ? `<p class="font-mono text-gray-500 font-bold uppercase text-sm tracking-widest mt-2 bg-gray-100 px-2">CODE : ${member.nom_code}</p>` : ''}
                 
-                <p class="text-indigo-600 font-medium text-lg text-center md:text-left mb-2 mt-2">${member.poste}</p>
-                ${roleHtml}
-                <p class="text-gray-500 text-sm flex items-center gap-1 mt-1 mb-6"><i class="fas fa-map-marker-alt"></i> ${lieu}</p>
+                <p class="text-black font-bold text-lg mt-4 border-l-4 border-jaune pl-3 leading-tight">${member.poste}</p>
                 
-                ${member.linkedin ? `<a href="${member.linkedin}" target="_blank" class="w-full text-center bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition-colors shadow-sm mb-3"><i class="fab fa-linkedin mr-2"></i> LinkedIn</a>` : ''}
+                <div class="mt-4">${roleHtml}</div>
                 
-                <div class="w-full flex gap-2">
-                    <button id="btn-modifier-fiche" class="flex-1 text-center bg-gray-100 text-gray-600 font-bold py-2 px-4 rounded hover:bg-gray-200 hover:text-indigo-600 transition-colors text-xs flex items-center justify-center gap-2">
-                        <i class="fas fa-pen"></i> Modifier
+                <p class="text-gray-500 text-sm flex items-center justify-center md:justify-start gap-2 mt-2 mb-6 font-bold uppercase"><i class="fas fa-map-marker-alt"></i> ${lieu}</p>
+                
+                ${member.linkedin ? `<a href="${member.linkedin}" target="_blank" class="w-full text-center bg-[#0077b5] text-white font-bold py-2 px-4 border-2 border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all shadow-sm mb-3"><i class="fab fa-linkedin mr-2"></i> LinkedIn</a>` : ''}
+                
+                <div class="w-full flex gap-2 mt-4">
+                    <button id="btn-modifier-fiche" class="flex-1 bg-white text-black font-bold py-2 px-2 border-2 border-black text-xs flex items-center justify-center gap-1 hover:bg-jaune transition-colors">
+                        <i class="fas fa-pen"></i> ÉDITER
                     </button>
-                    <button id="btn-supprimer-fiche" class="flex-1 text-center bg-red-50 text-red-600 font-bold py-2 px-4 rounded hover:bg-red-100 transition-colors text-xs flex items-center justify-center gap-2 border border-red-100">
-                        <i class="fas fa-trash"></i> Supprimer
+                    <button id="btn-supprimer-fiche" class="flex-1 bg-black text-white font-bold py-2 px-2 border-2 border-black text-xs flex items-center justify-center gap-1 hover:bg-red-600 transition-colors">
+                        <i class="fas fa-trash"></i> SUPPR.
                     </button>
                 </div>
             </div>
 
-            <div class="md:w-2/3 md:border-l md:border-gray-100 md:pl-8 pt-2">
-                ${member.bio ? `<div class="bg-indigo-50/50 p-6 rounded-lg border-l-4 border-indigo-300 italic text-gray-700 mb-6 mt-4 md:mt-0 relative"><i class="fas fa-quote-left text-indigo-200 absolute top-2 left-2 text-xl"></i><p class="relative z-10">"${member.bio}"</p></div>` : ''}
+            <div class="md:w-2/3 md:border-l-2 md:border-gray-200 md:pl-8 pt-2">
+                ${member.bio ? `<div class="bg-jaune/10 p-6 border-l-4 border-black italic text-gray-900 mb-6 relative"><i class="fas fa-quote-left text-jaune/50 absolute top-2 left-2 text-4xl -z-10"></i><p class="relative z-10 font-medium">"${member.bio}"</p></div>` : ''}
                 
-                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mb-2 mt-6">Compétences</h3>
+                <h3 class="font-black text-black uppercase text-sm tracking-widest mb-2 border-b-2 border-jaune inline-block pb-1">Compétences</h3>
                 ${tagsHtml || '<p class="text-gray-400 text-sm italic">Aucune compétence listée</p>'}
                 
                 ${sujetsHtml}
 
-                <h3 class="font-bold text-gray-900 uppercase text-xs tracking-wider mt-8 mb-2">Super Pouvoirs</h3>
+                <h3 class="font-black text-black uppercase text-sm tracking-widest mt-8 mb-2 border-b-2 border-jaune inline-block pb-1">Super Pouvoirs</h3>
                 ${statsHtml}
             </div>
         </div>
@@ -167,11 +168,11 @@ function openModal(member) {
     document.getElementById('btn-supprimer-fiche').onclick = async function() {
         if(!confirm(`Êtes-vous SÛRE de vouloir supprimer définitivement ${member.prenom} ${member.nom} ?\n\nCette action est irréversible.`)) return;
         
-        const code = prompt("🔒 Sécurité : Entrez le code administrateur pour confirmer la suppression (C'est 1234 par défaut) :");
+        const code = prompt("🔒 Sécurité : Entrez le code administrateur (1234) :");
         if (!code) return;
 
         const btn = document.getElementById('btn-supprimer-fiche');
-        btn.innerText = "Suppression...";
+        btn.innerText = "XXX";
         btn.disabled = true;
 
         try {
@@ -185,19 +186,17 @@ function openModal(member) {
                 })
             });
 
-            const result = await response.json();
-
             if (response.ok) {
-                alert("✅ Membre supprimé avec succès.\n\nL'annuaire va se mettre à jour dans 1 minute.");
+                alert("✅ Agent supprimé.");
                 closeModal();
                 location.reload(); 
             } else {
-                alert("❌ Erreur : " + result.message);
-                btn.innerText = "Réessayer";
+                alert("❌ Erreur code.");
+                btn.innerText = "ERREUR";
                 btn.disabled = false;
             }
         } catch (e) {
-            alert("Erreur technique : " + e.message);
+            alert("Erreur technique");
         }
     };
 
