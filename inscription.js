@@ -1,71 +1,82 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- MODE MODIFICATION ---
+    // --- PARTIE 1 : GESTION DU MODE "MODIFIER" ---
+    // (Cette partie reste identique pour pré-remplir le formulaire)
     const memberToEditData = localStorage.getItem('memberToEdit');
-    
     if (memberToEditData) {
         try {
             const member = JSON.parse(memberToEditData);
+            const setVal = (id, val) => { if(document.getElementById(id)) document.getElementById(id).value = val || ''; };
             
-            // On remplit tout avec une sécurité (|| '')
-            document.getElementById('prenom').value = member.prenom || '';
-            document.getElementById('nom').value = member.nom || '';
-            document.getElementById('nom_code').value = member.nom_code || '';
-            document.getElementById('poste').value = member.poste || '';
-            document.getElementById('role_supp').value = member.role_supp || '';
-            document.getElementById('ville').value = member.ville || '';
-            document.getElementById('codePostal').value = member.codePostal || '';
-            document.getElementById('bio').value = member.bio || '';
-            document.getElementById('photo').value = member.photo || '';
-            document.getElementById('linkedin').value = member.linkedin || '';
-            document.getElementById('email').value = member.email || '';
-            
-            // Compétences (Tableau -> Texte)
+            setVal('prenom', member.prenom);
+            setVal('nom', member.nom);
+            setVal('nom_code', member.nom_code);
+            setVal('poste', member.poste);
+            setVal('role_supp', member.role_supp);
+            setVal('ville', member.ville);
+            setVal('codePostal', member.codePostal);
+            setVal('bio', member.bio);
+            setVal('photo', member.photo);
+            setVal('linkedin', member.linkedin);
+            setVal('email', member.email);
+
             if (member.competences && Array.isArray(member.competences)) {
                 document.getElementById('competences').value = member.competences.join(', ');
             }
-            // Sujets d'intérêt (Tableau -> Texte)
             if (member.sujets_interet && Array.isArray(member.sujets_interet)) {
                 document.getElementById('sujets_interet').value = member.sujets_interet.join(', ');
             }
-
+            
             // Jauges
             const stats = member.stats || {};
-            setSlider('bagou', stats.bagou || 3);
-            setSlider('redac', stats.redac || 3);
-            setSlider('terrain', stats.terrain || 3);
-            setSlider('orga', stats.orga || 3);
+            const setSlider = (id, val) => { 
+                document.getElementById(id).value = val || 3;
+                document.getElementById('val_'+id).innerText = (val || 3) + '/5';
+            };
+            setSlider('bagou', stats.bagou);
+            setSlider('redac', stats.redac);
+            setSlider('terrain', stats.terrain);
+            setSlider('orga', stats.orga);
 
             document.querySelector('h1').innerText = "Modifier : " + (member.prenom || 'Membre');
-            document.querySelector('button[type="submit"]').innerText = "Mettre à jour le code";
+            const btn = document.querySelector('button[type="submit"]');
+            btn.innerText = "Mettre à jour ma fiche";
             
         } catch (e) { console.error("Erreur chargement profil", e); }
-        
         localStorage.removeItem('memberToEdit');
     }
 
-    function setSlider(id, value) {
-        const el = document.getElementById(id);
-        const valDisplay = document.getElementById('val_' + id);
-        if (el) { el.value = value; valDisplay.innerText = value + '/5'; }
+    // Fonctions utilitaires pour les sliders
+    window.updateSliderVal = function(id, val) {
+        document.getElementById('val_' + id).innerText = val + '/5';
     }
 
-    // --- SOUMISSION ---
-    document.getElementById('inscriptionForm').addEventListener('submit', (e) => {
-        e.preventDefault();
 
+    // --- PARTIE 2 : ENVOI DU FORMULAIRE ---
+    const form = document.getElementById('inscriptionForm');
+    if(!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // On change le bouton pour montrer que ça charge
+        const btn = form.querySelector('button[type="submit"]');
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Enregistrement en cours...";
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        // Récupération des valeurs
         const getVal = (id) => document.getElementById(id).value.trim();
         const prenom = getVal('prenom');
         const nom = getVal('nom');
         let photo = getVal('photo');
         
-        // Image par défaut si vide
+        // Avatar par défaut
         if (!photo) photo = "https://ui-avatars.com/api/?name=" + prenom + "+" + nom + "&background=random&color=fff&size=256";
 
         const makeArray = (id) => getVal(id).split(',').map(s => s.trim()).filter(s => s.length > 0);
-        const competences = makeArray('competences');
-        const sujets_interet = makeArray('sujets_interet');
-
+        
         const stats = {
             bagou: parseInt(document.getElementById('bagou').value) || 3,
             redac: parseInt(document.getElementById('redac').value) || 3,
@@ -73,42 +84,61 @@ document.addEventListener('DOMContentLoaded', () => {
             orga: parseInt(document.getElementById('orga').value) || 3
         };
 
+        // Création de l'ID unique et du contenu du fichier
         const idGenerated = (prenom + nom).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
-        const varName = idGenerated;
-
-        const finalCode = `export const ${varName} = {
+        const fileName = `${idGenerated}.js`;
+        
+        const fileContent = `export const ${idGenerated} = {
     id: "${idGenerated}",
     prenom: "${prenom}",
     nom: "${nom}",
     nom_code: "${getVal('nom_code')}",
     poste: "${getVal('poste')}",
     role_supp: "${getVal('role_supp')}",
-    
     ville: "${getVal('ville')}",
     codePostal: "${getVal('codePostal')}",
-    // lat: 0, 
-    // lng: 0, 
-    
     photo: "${photo}",
-    
     bio: "${getVal('bio').replace(/"/g, '\\"')}",
-    
-    competences: ${JSON.stringify(competences)},
-    sujets_interet: ${JSON.stringify(sujets_interet)},
-    
+    competences: ${JSON.stringify(makeArray('competences'))},
+    sujets_interet: ${JSON.stringify(makeArray('sujets_interet'))},
     stats: ${JSON.stringify(stats, null, 8).replace("}", "    }")},
-
     linkedin: "${getVal('linkedin')}",
     email: "${getVal('email')}"
 };`;
 
-        const jsonOutput = document.getElementById('jsonOutput');
-        jsonOutput.textContent = finalCode;
-        document.getElementById('resultat').classList.remove('hidden');
-        document.getElementById('resultat').scrollIntoView({ behavior: 'smooth' });
+        try {
+            // APPEL À L'API VERCEL (C'est ici que la magie opère)
+            const response = await fetch('/api/save-member', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fileName, fileContent })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("✅ Succès ! Votre fiche a été créée.\n\nLe site va se mettre à jour automatiquement dans 1 à 2 minutes.\n(Pensez à ajouter manuellement l'import dans index.js si ce n'est pas encore automatisé).");
+                window.location.href = 'index.html';
+            } else {
+                throw new Error(result.message || "Erreur inconnue");
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("❌ Oups ! Une erreur est survenue : " + error.message);
+            // En cas d'erreur, on affiche quand même le code pour pas perdre les données
+            document.getElementById('jsonOutput').textContent = fileContent;
+            document.getElementById('resultat').classList.remove('hidden');
+        } finally {
+            // On remet le bouton comme avant
+            btn.innerText = originalText;
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
     });
 });
 
+// Pour copier le code manuellement si besoin
 function copierCode() {
     navigator.clipboard.writeText(document.getElementById('jsonOutput').textContent).then(() => alert("Copié !"));
 }
