@@ -1,4 +1,4 @@
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     // 1. Sécurité
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Méthode non autorisée' });
@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
     const repo = process.env.GITHUB_REPO_NAME;
 
     if (!token || !owner || !repo) {
-        return res.status(500).json({ message: 'Configuration serveur incomplète (Variables manquantes)' });
+        return res.status(500).json({ message: 'Configuration serveur incomplète' });
     }
 
     try {
@@ -45,4 +45,4 @@ module.exports = async (req, res) => {
         console.error(error);
         return res.status(500).json({ message: error.message });
     }
-};
+}
