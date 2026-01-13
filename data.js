@@ -3,6 +3,7 @@ const lotsOfMembers = [
         id: 1,
         prenom: "Hortense",
         nom: "Chevalier",
+        nom_code: "Buse du marais",
         poste: "Consultante data et innovation",
         role_supp: "Co-référente PP85",
         
@@ -37,3 +38,4 @@ const lotsOfMembers = [
         email: "consultant.numerique@gmail.com"
     }
 ];
+
