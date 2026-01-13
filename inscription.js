@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- GESTION DU MODE MODIFIER (Pas de changement) ---
+    // --- GESTION DU MODE MODIFIER ---
     const memberToEditData = localStorage.getItem('memberToEdit');
     if (memberToEditData) {
         try {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('val_' + id).innerText = val + '/5';
     }
 
-    // --- ENVOI DU FORMULAIRE (Le cœur du système) ---
+    // --- ENVOI DU FORMULAIRE ---
     const form = document.getElementById('inscriptionForm');
     if(!form) return;
 
@@ -56,13 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const btn = form.querySelector('button[type="submit"]');
         const originalText = btn.innerText;
-        btn.innerText = "⏳ Construction de l'annuaire...";
+        btn.innerText = "📍 Recherche de l'adresse..."; 
         btn.disabled = true;
         btn.classList.add('opacity-50', 'cursor-not-allowed');
 
         const getVal = (id) => document.getElementById(id).value.trim();
         const prenom = getVal('prenom');
         const nom = getVal('nom');
+        const ville = getVal('ville');
+        const codePostal = getVal('codePostal'); // Peut être vide maintenant
         let photo = getVal('photo');
         
         if (!photo) photo = "https://ui-avatars.com/api/?name=" + prenom + "+" + nom + "&background=random&color=fff&size=256";
@@ -76,7 +78,32 @@ document.addEventListener('DOMContentLoaded', () => {
             orga: parseInt(document.getElementById('orga').value) || 3
         };
 
-        // ID unique (ex: hortensechevalier)
+        // --- GÉOCODAGE AUTOMATIQUE ---
+        let lat = 'null';
+        let lng = 'null';
+        
+        try {
+            // Construction intelligente de l'URL (avec ou sans Code Postal)
+            let query = encodeURIComponent(ville);
+            if(codePostal) query += `&postcode=${codePostal}`;
+            
+            const urlGeo = `https://api-adresse.data.gouv.fr/search/?q=${query}&limit=1`;
+            const resGeo = await fetch(urlGeo);
+            const dataGeo = await resGeo.json();
+
+            if (dataGeo.features && dataGeo.features.length > 0) {
+                const coords = dataGeo.features[0].geometry.coordinates;
+                lng = coords[0];
+                lat = coords[1];
+                btn.innerText = "✅ Adresse trouvée ! Envoi...";
+            } else {
+                console.warn("Adresse introuvable par le GPS");
+            }
+        } catch (err) {
+            console.error("Erreur GPS :", err);
+        }
+        // --------------------------------------------------
+
         const idGenerated = (prenom + nom).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
         const fileName = `${idGenerated}.js`;
         
@@ -89,6 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
     role_supp: "${getVal('role_supp')}",
     ville: "${getVal('ville')}",
     codePostal: "${getVal('codePostal')}",
+    lat: ${lat},
+    lng: ${lng},
     photo: "${photo}",
     bio: "${getVal('bio').replace(/"/g, '\\"')}",
     competences: ${JSON.stringify(makeArray('competences'))},
@@ -99,21 +128,20 @@ document.addEventListener('DOMContentLoaded', () => {
 };`;
 
         try {
-            // ON ENVOIE TOUT AU CERVEAU : le nom du fichier, le contenu, ET le nom de la variable JS
             const response = await fetch('/api/save-member', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     fileName, 
                     fileContent,
-                    memberId: idGenerated // <--- C'est ça qui manquait pour automatiser l'index !
+                    memberId: idGenerated
                 })
             });
 
             const result = await response.json();
 
             if (response.ok) {
-                alert("✅ MAGIQUE ! Votre fiche est créée et ajoutée à l'annuaire.\n\nLe site va se mettre à jour tout seul dans 1 à 2 minutes.");
+                alert("✅ Fiche mise à jour !\n\nL'annuaire va se rafraîchir dans 1 minute.");
                 window.location.href = 'index.html';
             } else {
                 throw new Error(result.message || "Erreur inconnue");
