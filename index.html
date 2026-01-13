@@ -6,20 +6,31 @@
     <title>Place aux Femmes - L'Annuaire</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        jaune: '#ffed00',
+                        anthracite: '#1f2937',
+                    }
+                }
+            }
+        }
+    </script>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50 font-sans h-screen flex flex-col overflow-hidden">
+<body class="bg-white font-sans h-screen flex flex-col overflow-hidden text-anthracite">
 
-    <nav class="bg-white shadow-sm z-20 relative flex-shrink-0">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl">🌍</span>
-                <h1 class="text-xl font-bold text-gray-800">Place aux <span class="text-indigo-600">Femmes</span></h1>
+    <nav class="bg-anthracite text-white shadow-md z-20 relative flex-shrink-0 border-b-4 border-jaune">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl text-jaune font-black">♀</span>
+                <h1 class="text-2xl font-black uppercase tracking-tighter">Place aux <span class="bg-jaune text-black px-1 transform -skew-x-6 inline-block">Femmes</span></h1>
             </div>
-            <div id="member-count" class="bg-indigo-100 text-indigo-700 text-sm font-bold px-3 py-1 rounded-full">
+            <div id="member-count" class="bg-jaune text-black text-sm font-bold px-4 py-1 rounded-sm uppercase tracking-wider border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
                 Chargement...
             </div>
         </div>
@@ -27,36 +38,33 @@
 
     <div class="flex-1 flex flex-col md:flex-row relative overflow-hidden">
         
-        <div class="w-full md:w-1/2 overflow-y-auto p-4 bg-gray-50 h-full border-r border-gray-200">
+        <div class="w-full md:w-1/2 overflow-y-auto p-4 bg-gray-50 h-full border-r-4 border-gray-200">
             <div id="members-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 </div>
         </div>
 
-        <div class="w-full md:w-1/2 h-64 md:h-full relative z-0">
-            <div id="map" class="w-full h-full bg-gray-200"></div>
+        <div class="w-full md:w-1/2 h-64 md:h-full relative z-0 bg-gray-200">
+            <div id="map" class="w-full h-full grayscale-[50%]"></div>
         </div>
 
     </div>
 
     <div id="profile-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="fixed inset-0 bg-black bg-opacity-80 transition-opacity backdrop-blur-sm" onclick="closeModal()"></div>
 
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border-t-4 border-indigo-500">
+            <div class="relative transform overflow-hidden bg-white text-left shadow-[8px_8px_0px_0px_rgba(255,237,0,1)] transition-all sm:my-8 sm:w-full sm:max-w-2xl border-4 border-black">
                 
                 <div class="absolute right-0 top-0 pr-4 pt-4 z-10">
-                    <button type="button" onclick="closeModal()" class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none transition-colors">
-                        <span class="sr-only">Fermer</span>
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <button type="button" onclick="closeModal()" class="bg-black text-jaune hover:text-white p-2 transition-colors font-bold rounded-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <div id="modal-content" class="px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                <div id="modal-content" class="px-4 pb-4 pt-5 sm:p-8 sm:pb-8">
                     </div>
-                
             </div>
         </div>
     </div>
@@ -68,11 +76,7 @@
     </script>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
     <script type="module" src="script.js"></script>
 
 </body>
 </html>
-
-
-
