@@ -11,9 +11,9 @@ export const mireillecaulier = {
     photo: "https://media.licdn.com/dms/image/v2/C5603AQGNzVood62LWQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1517802702208?e=2147483647&v=beta&t=Ynun2eSHqDve3g2sNN7USyuyItQzXwjd1zEQN0yguNs",
     bio: "Une vie professionnelle intense portée par deux activités successives : conseil aux agriculteurs puis pilotage  d'organismes de sécurité sociale. Une retraite engagée sur le climatique (groupe de travail ENERCOOP) et le politique (Place Publique).",
     competences: ["Formation scientifique : rigueur et goût des chiffres. Goût pour les relations humaines :Gestion RH"],
-    sujets_interet: ["Souveraineté énergétique (électricité verte dont l'éolien) et lutte contre l'extrême droite.dont dont l'éolien."],
+    sujets_interet: ["Souveraineté énergétique (électricité verte dont l'éolien) et lutte contre l'extrême droite."],
     stats: {
-        "bagou": 5,
+        "bagou": 4,
         "redac": 3,
         "terrain": 3,
         "orga": 5
