@@ -8,7 +8,7 @@ export const marionguerin = {
     ville: "LES SABLES D'OLONNE",
     lat: 46.524364,
     lng: -1.765848,
-    photo: "https://ui-avatars.com/api/?name=Marion+GUERIN&background=random&color=fff&size=256",
+    photo: "https://drive.google.com/drive/u/0/folders/1gFeS9rj1Z_eW-fvOy2YioqHIvVbjd57r",
     bio: "Engagée auprès de Place Publique depuis les dernières élections européennes, j'ai depuis toujours travaillé pour la \"chose publique\". Je milite pour faire de la politique autrement, pour passer d’une politique de l’ego à un engagement réciproque et responsable.",
     competences: ["RSE","gouvernance territoriale","développement économique des territoires"],
     sujets_interet: ["Europe","Autonomie","Agriculture souveraine et durable","droit des femmes","évolution des consciences"],
