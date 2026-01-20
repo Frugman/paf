@@ -8,7 +8,8 @@ export const agnescamarena = {
     ville: "Laval",
     lat: 48.059373,
     lng: -0.766849,
-    photo: "https://media.ouest-france.fr/v1/pictures/MjAyNDAzY2FiM2IxNTMyNTVmMjM2NDk4M2RiODIwMmE0N2UxYWI?width=1260&height=708&focuspoint=50%2C25&cropresize=1&client_id=bpeditorial&sign=87ddb1f32effa9c50fe0095a38e7ad1ad930949086cc813e320437a9051bf380",
+    photo: "https://media.licdn.com/dms/image/v2/D4E03AQH6PN_TFcYH9Q/profile-displayphoto-shrink_200_200/B4EZu7Wq98KsAc-/0/1768374841641?e=1770249600&v=beta&t=-zgmxSOQ4A76e3WAEASmWHYD2QakUoX8pauFEffFQGQ",
+    // On remplace les guillemets ET les sauts de ligne (qui cassent le code)
     bio: "Ma vie mon oeuvre",
     competences: ["Contacts","lieux"],
     sujets_interet: ["Justice sociale","Féminisme","éducation populaire","culture"],
