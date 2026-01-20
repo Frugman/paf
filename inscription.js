@@ -114,7 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
     lat: ${lat},
     lng: ${lng},
     photo: "${photo}",
-    bio: "${getVal('bio').replace(/"/g, '\\"')}",
+    // On remplace les guillemets ET les sauts de ligne (qui cassent le code)
+    bio: "${getVal('bio').replace(/"/g, '\\"').replace(/\n/g, ' ')}",
     competences: ${JSON.stringify(makeArray('competences'))},
     sujets_interet: ${JSON.stringify(makeArray('sujets_interet'))},
     stats: ${JSON.stringify(stats, null, 8).replace("}", "    }")},
