@@ -9,6 +9,7 @@ export const marionguerin = {
     lat: 46.524364,
     lng: -1.765848,
     photo: "https://ui-avatars.com/api/?name=Marion+GUERIN&background=random&color=fff&size=256",
+    // On remplace les guillemets ET les sauts de ligne (qui cassent le code)
     bio: "Engagée auprès de Place Publique depuis les dernières élections européennes, j'ai depuis toujours travaillé pour la \"chose publique\". Je milite pour faire de la politique autrement, pour passer d’une politique de l’ego à un engagement réciproque et responsable.",
     competences: ["RSE","gouvernance territoriale","développement économique des territoires"],
     sujets_interet: ["Europe","Autonomie","Agriculture souveraine et durable","droit des femmes","évolution des consciences"],
