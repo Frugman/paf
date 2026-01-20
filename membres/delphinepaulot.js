@@ -9,7 +9,8 @@ export const delphinepaulot = {
     lat: 47.311114,
     lng: -1.63115,
     photo: "https://media.licdn.com/dms/image/v2/C4D03AQFhQhWqn8pc3Q/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1594360355362?e=2147483647&v=beta&t=3oVrhVcWxyLqA6tBnN_sOJjLbdfOEm0thR67JvkzkSI",
-    bio: "Depuis 2013 pour MSF comme coordinatrice des RH sur les terrains puis Cheffe de projet pour le siège en Belgique et en France. Auparavant, manager dans les RH et le conseil, dans le privé pendant 15 ans. J'ai appris à comprendre l'importance de nos différences et qu'on s'enrichit en partageant.",
+    // On remplace les guillemets ET les sauts de ligne (qui cassent le code)
+    bio: "Depuis 2013 pour MSF comme coordinatrice des RH sur les terrains puis Cheffe de projet pour le siège en Belgique et en France. Auparavant, manager dans les RH et le conseil, dans le privé pendant 15 ans. J'ai appris à comprendre l'importance de nos différences et la richesse issue du partage.",
     competences: ["Curiosité 🤓","peur de rien 🤠"],
     sujets_interet: ["Justice sociale","écologie (agriculture","eau...)","antifa :)"],
     stats: {
