@@ -1,3 +1,4 @@
+import { soniaseibelbechaz } from './soniaseibelbechaz.js';
 import { aureliadiversaydelaroque } from './aureliadiversaydelaroque.js';
 import { marionguerin } from './marionguerin.js';
 import { francoiseberric } from './francoiseberric.js';
@@ -10,6 +11,7 @@ import { hortensechevalier } from './hortensechevalier.js';
 
 // 2. Ajouter les membres dans la liste finale
 export const lotsOfMembers = [
+    soniaseibelbechaz,
     aureliadiversaydelaroque,
     marionguerin,
     francoiseberric,
